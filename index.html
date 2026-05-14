@@ -22,10 +22,10 @@
             --radius-lg: 32px;
         }
 
-        /* 打印样式：确保导出PDF时排版完美且去除交互元素 */
+        /* 打印/导出PDF专用样式 */
         @media print {
             body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            header, .hero-btns, .delete-btn, .add-card, #scroll-progress, .cursor-dot, .cursor-outline, .lang-btn { display: none !important; }
+            header, .hero-btns, .delete-btn, .add-card, #scroll-progress, .cursor-dot, .cursor-outline, .lang-btn, #lightbox { display: none !important; }
             .container { max-width: 100% !important; padding: 0 40px !important; }
             .about-card, .service-card, .work-card { box-shadow: none !important; border: 1px solid var(--border-color) !important; break-inside: avoid !important; }
             .section-padding { padding: 40px 0 !important; }
@@ -153,6 +153,16 @@
 
         .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 50px; z-index: 3000; opacity: 0; transition: 0.3s; pointer-events: none;}
         [contenteditable]:hover { background: rgba(43, 92, 255, 0.05); border-radius: 4px; outline: none; }
+
+        /* Lightbox 样式 */
+        #lightbox {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 5000; display: none;
+            justify-content: center; align-items: center; cursor: zoom-out;
+            backdrop-filter: blur(8px);
+        }
+        #lightbox img { max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 0 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #lightbox.active img { transform: scale(1); }
 
         @media (max-width: 992px) {
             .hero-grid, .about-card { grid-template-columns: 1fr; text-align: center; justify-items: center; }
@@ -303,10 +313,14 @@
         </div>
     </footer>
 
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Zoomed view">
+    </div>
+
     <div class="toast" id="toast">操作成功</div>
 
     <script>
-        const DATA_FILENAME = "李浩藩_作品集数据.json";
+        const DATA_FILENAME = "portfolio-data.json";
         let isEnglish = false;
 
         const i18n = {
@@ -321,13 +335,13 @@
                 msg_copy: "已复制：", msg_lang: "已切换为中文"
             },
             en: {
-                nav_home: "Home", nav_about: "About", nav_services: "Services", nav_visual: "Visual Assets", nav_video: "Video Resume", nav_contact: "Contact",
+                nav_home: "Home", nav_about: "About", nav_services: "Services", nav_visual: "Visual Assets", nav_video: "Videos", nav_contact: "Contact",
                 hero_hello: "Hi, I'm Haofan Li", hero_title: "AI Comic Producer<br>& AI Designer", btn_portfolio: "Portfolio", btn_download: "Download PDF",
                 about_tag: "Reconstructing Visual Storytelling with AI", about_philosophy: "“Tech serves content, Efficiency serves experience”",
                 about_content: "I am an AI comic producer with design aesthetics, filming experience, and AI expertise. From e-commerce visuals to AI creation, I've seen the production paradigm shift. My core philosophy: AI only thrives when it serves real content needs and creates visual value. I excel at merging business logic with AI, using refined character settings and cinematic design to scale AI video content for short dramas, ads, and brand promos. As a bridge between tech and creativity, I refine workflows for tools like Seedance and build impactful AI comic works.",
                 services_title: "My Services", label_services: "WHAT I DO", service_1_title: "AI Comic Customization", service_1_desc: "Full pipeline AI comic production adapted for social platforms.", service_2_title: "Visual Assets Design", service_2_desc: "Character consistency, concept art, and storyboard drawing.", service_3_title: "Commercial Short Films", service_3_desc: "Brand ads and concept PVs using AI for cinematic narratives.",
                 label_projects: "SELECTED PROJECTS", add_visual: "Click or Drag to Upload Image", add_video: "Click or Drag to Upload Video",
-                contact_title: "Let's Collaborate", contact_tag: "Turning creativity into reality together", label_email: "📩 Email", label_phone: "📱 Phone",
+                contact_title: "Let's Collaborate", contact_tag: "Turning creativity into reality together", label_email: "📩 Email", label_phone: "Phone",
                 msg_copy: "Copied: ", msg_lang: "Switched to English"
             }
         };
@@ -340,42 +354,55 @@
                 { icon: "🎥", key: "运镜 + AI", desc: "镜头融合", keyEn: "Cam + AI", descEn: "Cinematic" }
             ],
             visual_assets: [
-                { src: "3f3865cf4f398be5226e427fac9eeee0_2.jpg", title: "赛博场景设定", desc: "Midjourney 建筑概念" }
+                { src: "https://placehold.co/600x400/2b5cff/ffffff?text=AI+Visual+1", title: "赛博场景设定", desc: "Midjourney 建筑概念" }
             ]
         };
 
         async function init() {
-            let data = JSON.parse(JSON.stringify(defaultData)); // 预载默认深拷贝
+            // 1. 立即加载默认数据 (UI First)
+            renderFeatures(defaultData.features);
+            defaultData.visual_assets.forEach(v => addWork('visual', v.src, v.title, v.desc));
+            updateUI();
+            setupInteractions();
+
+            // 2. 尝试读取 JSON 覆盖 (Fetch Second)
             try {
-                // 尝试优先读取本地同名 JSON 文件
-                const res = await fetch(DATA_FILENAME);
+                const safeUrl = encodeURI(DATA_FILENAME) + `?v=${Date.now()}`;
+                const res = await fetch(safeUrl);
                 if (res.ok) {
                     const jsonData = await res.json();
-                    data = { ...data, ...jsonData }; // 合并数据
-                    console.log("成功加载本地数据文件");
+                    
+                    // 清空现有默认作品卡片 (不包含 add-card)
+                    document.querySelectorAll('.work-card:not(.add-card)').forEach(c => c.remove());
+
+                    // 覆盖同步 i18n 字典，防止语言切换时变回去
+                    if (jsonData.personalInfo) {
+                        if (jsonData.personalInfo.name) {
+                            i18n.zh.hero_hello = `你好，我是${jsonData.personalInfo.name}`;
+                            i18n.en.hero_hello = `Hi, I'm ${jsonData.personalInfo.name}`;
+                        }
+                        if (jsonData.personalInfo.about) {
+                            i18n.zh.about_content = jsonData.personalInfo.about;
+                        }
+                        // 头像同步
+                        if (jsonData.personalInfo.avatar) {
+                            const img = document.getElementById('avatar-img');
+                            img.src = jsonData.personalInfo.avatar; img.style.display = 'block';
+                            document.getElementById('avatar-text').style.display = 'none';
+                        }
+                    }
+
+                    // 渲染 JSON 数据
+                    if(jsonData.features) renderFeatures(jsonData.features);
+                    if(jsonData.visual_assets) jsonData.visual_assets.forEach(v => addWork('visual', v.src, v.title, v.desc));
+                    if(jsonData.video_resume) jsonData.video_resume.forEach(v => addWork('video', v.src, v.title, v.desc));
+
+                    // 再次刷新 UI
+                    updateUI();
                 }
             } catch (e) {
-                console.warn("未能加载本地JSON，使用内置默认数据。");
+                console.warn("JSON loading skipped or failed, using defaults.");
             }
-
-            // 渲染数据到页面
-            if(data.personalInfo) {
-                document.getElementById('about-text').innerText = data.personalInfo.about;
-            }
-
-            renderFeatures(data.features);
-
-            // 清理并渲染视觉资产 (如果 JSON 中有)
-            if(data.visual_assets && data.visual_assets.length > 0) {
-                const visualGrid = document.getElementById('visual-grid');
-                // 移除演示用的旧卡片，只保留 Add 卡片
-                const oldCards = visualGrid.querySelectorAll('.work-card:not(.add-card)');
-                oldCards.forEach(c => c.remove());
-                data.visual_assets.forEach(v => addWork('visual', v.src, v.title, v.desc));
-            }
-            
-            setupInteractions();
-            updateUI();
         }
 
         function toggleLang() {
@@ -388,13 +415,17 @@
             const lang = isEnglish ? 'en' : 'zh';
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.dataset.i18n;
-                if (i18n[lang][key]) el.innerHTML = i18n[lang][key];
+                if (i18n[lang][key]) {
+                    if (document.activeElement === el) return;
+                    el.innerHTML = i18n[lang][key];
+                }
             });
-            renderFeatures(defaultData.features);
+            document.querySelector('.lang-btn').innerText = isEnglish ? "En/中文" : "中文/En";
         }
 
         function renderFeatures(features) {
             const list = document.getElementById('feature-list');
+            if(!list) return;
             list.innerHTML = features.map(f => `
                 <div class="feature-item">
                     <span class="feature-icon">${f.icon}</span>
@@ -402,6 +433,24 @@
                     <div style="font-size: 0.7rem; opacity: 0.6;">${isEnglish ? f.descEn : f.desc}</div>
                 </div>
             `).join('');
+        }
+
+        function openLightbox(src) {
+            const lb = document.getElementById('lightbox');
+            const lbImg = document.getElementById('lightbox-img');
+            lbImg.src = src;
+            lb.style.display = 'flex';
+            setTimeout(() => lb.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lb = document.getElementById('lightbox');
+            lb.classList.remove('active');
+            setTimeout(() => {
+                lb.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 300);
         }
 
         function handleFileSelect(input, type) {
@@ -413,7 +462,7 @@
                         img.src = e.target.result; img.style.display = 'block';
                         document.getElementById('avatar-text').style.display = 'none';
                     } else {
-                        addWork(type, e.target.result, isEnglish ? 'New Project' : '新增项目', isEnglish ? 'Edit description' : '点击编辑描述');
+                        addWork(type, e.target.result, isEnglish ? 'New Project' : '新增项目', isEnglish ? 'Description' : '点击编辑描述');
                     }
                 };
                 reader.readAsDataURL(input.files[0]);
@@ -426,13 +475,14 @@
             const files = e.dataTransfer.files;
             if (files && files[0]) {
                 const reader = new FileReader();
-                reader.onload = ev => addWork(type, ev.target.result, isEnglish ? 'New Project' : '新增项目', isEnglish ? 'Edit description' : '点击编辑描述');
+                reader.onload = ev => addWork(type, ev.target.result, isEnglish ? 'New Project' : '新增项目', isEnglish ? 'Description' : '点击编辑描述');
                 reader.readAsDataURL(files[0]);
             }
         }
 
         function addWork(containerId, src, title, desc) {
             const grid = document.getElementById(`${containerId}-grid`);
+            if(!grid) return;
             const card = document.createElement('div');
             card.className = 'work-card';
             
@@ -444,6 +494,10 @@
 
             const thumb = document.createElement('div');
             thumb.className = 'work-thumb';
+            // 添加点击放大事件
+            if (containerId === 'visual') {
+                thumb.onclick = () => openLightbox(src);
+            }
             thumb.innerHTML = containerId === 'video' ? `<video src="${src}" controls></video>` : `<img src="${src}">`;
             card.appendChild(thumb);
 
@@ -458,20 +512,26 @@
         }
 
         function exportData() {
+            const avatarImg = document.getElementById('avatar-img');
             const exportObj = {
                 personalInfo: {
                     name: "李浩藩",
-                    about: document.getElementById('about-text').innerText
+                    about: document.getElementById('about-text').innerText,
+                    avatar: avatarImg.style.display !== 'none' ? avatarImg.src : ""
                 },
                 visual_assets: Array.from(document.querySelectorAll('#visual-grid .work-card:not(.add-card)')).map(c => ({
-                    src: c.querySelector('img') ? c.querySelector('img').src : "",
+                    src: c.querySelector('img').src,
+                    title: c.querySelector('h4').innerText,
+                    desc: c.querySelector('p').innerText
+                })),
+                video_resume: Array.from(document.querySelectorAll('#video-grid .work-card:not(.add-card)')).map(c => ({
+                    src: c.querySelector('video').src,
                     title: c.querySelector('h4').innerText,
                     desc: c.querySelector('p').innerText
                 })),
                 timestamp: new Date().toISOString()
             };
 
-            // 导出 JSON
             const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -479,8 +539,10 @@
             document.body.appendChild(a); a.click();
             document.body.removeChild(a);
 
-            // 唤起打印生成 PDF
-            setTimeout(() => window.print(), 800);
+            setTimeout(() => {
+                window.print();
+                showTip("数据已导出为JSON，同时唤起PDF保存");
+            }, 800);
         }
 
         function copy(text) {
@@ -492,21 +554,24 @@
 
         function showTip(msg) {
             const t = document.getElementById('toast');
+            if(!t) return;
             t.innerText = msg; t.style.opacity = 1;
             setTimeout(() => t.style.opacity = 0, 2500);
         }
 
         function setupInteractions() {
             window.addEventListener('scroll', () => {
+                const progress = document.getElementById("scroll-progress");
+                if(!progress) return;
                 const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-                document.getElementById("scroll-progress").style.width = scrolled + "%";
+                progress.style.width = scrolled + "%";
             });
 
             const dot = document.querySelector('.cursor-dot');
             const outline = document.querySelector('.cursor-outline');
             window.addEventListener('mousemove', e => {
-                dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
-                outline.style.left = e.clientX + 'px'; outline.style.top = e.clientY + 'px';
+                if(dot) { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; }
+                if(outline) { outline.style.left = e.clientX + 'px'; outline.style.top = e.clientY + 'px'; }
             });
         }
 
