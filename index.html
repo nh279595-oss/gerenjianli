@@ -17,30 +17,18 @@
             --text-main: #0f172a;
             --text-secondary: #475569;
             --text-muted: #94a3b8;
-            --shadow-lg: 0 20px 50px -12px rgba(43, 92, 255, 0.12);
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             --radius: 20px;
             --radius-lg: 32px;
         }
 
+        /* 打印样式：确保导出PDF时排版完美且去除交互元素 */
         @media print {
-            body { 
-                background: var(--bg-gradient) !important;
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important;
-            }
-            header, .hero-btns, .delete-btn, .add-card, #scroll-progress, .cursor-dot, .cursor-outline, .lang-btn {
-                display: none !important;
-            }
+            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            header, .hero-btns, .delete-btn, .add-card, #scroll-progress, .cursor-dot, .cursor-outline, .lang-btn { display: none !important; }
             .container { max-width: 100% !important; padding: 0 40px !important; }
-            .about-card, .service-card, .work-card { 
-                box-shadow: none !important; 
-                border: 1px solid var(--border-color) !important;
-                background-color: #fff !important;
-                break-inside: avoid !important;
-            }
+            .about-card, .service-card, .work-card { box-shadow: none !important; border: 1px solid var(--border-color) !important; break-inside: avoid !important; }
             .section-padding { padding: 40px 0 !important; }
-            h1, h2, h3 { color: var(--text-main) !important; }
             @page { margin: 1cm; }
         }
 
@@ -79,33 +67,39 @@
             border-bottom: 1px solid var(--border-color); z-index: 1000;
         }
         .nav-wrapper { display: flex; justify-content: space-between; align-items: center; height: 100%; }
-        .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); cursor: pointer; letter-spacing: -0.5px; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); cursor: pointer; }
         .nav-menu { display: flex; gap: 32px; }
         .nav-menu a { font-weight: 500; color: var(--text-secondary); transition: var(--transition); font-size: 0.95rem; text-decoration: none; }
         .nav-menu a:hover { color: var(--primary); }
+        .lang-btn {
+            border: 1px solid var(--primary); color: var(--primary);
+            padding: 4px 12px; border-radius: 8px; font-weight: 600; cursor: pointer;
+            transition: var(--transition); font-size: 0.85rem;
+        }
+        .lang-btn:hover { background: var(--primary); color: white; }
 
         #hero { min-height: 100vh; display: flex; align-items: center; padding-top: 80px; }
         .hero-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; align-items: center; }
-        
-        .hero-avatar-box { display: flex; justify-content: center; position: relative; }
         .avatar-circle {
-            width: 220px; height: 220px; border-radius: 50%; padding: 4px;
+            width: 200px; height: 200px; border-radius: 50%; padding: 4px;
             border: 2px solid var(--border-color); background: var(--primary);
             transition: var(--transition); cursor: pointer; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
         }
-        .avatar-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--primary); color: white; font-size: 4rem; font-weight: 800; }
+        .avatar-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--primary); color: white; font-size: 3rem; font-weight: 800; }
         .avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
 
         .hero-text-area h2 { font-size: 1.1rem; color: var(--primary); font-weight: 600; margin-bottom: 8px; }
         .hero-text-area h1 { font-size: 3.2rem; line-height: 1.2; margin-bottom: 16px; font-weight: 800; }
         .hero-slogan-en { color: var(--text-muted); font-size: 1rem; font-weight: 400; margin-bottom: 32px; display: block; }
 
-        .btn { padding: 14px 32px; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); cursor: pointer; border: none; }
-        .btn-primary { background: var(--primary); color: white; }
+        .btn { padding: 14px 32px; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); cursor: pointer; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(43, 92, 255, 0.2); }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 12px 24px rgba(43, 92, 255, 0.3); }
         .btn-outline { border: 1px solid var(--border-color); background: white; color: var(--text-secondary); margin-left: 12px; }
+        .btn-outline:hover { transform: scale(1.05); border-color: var(--primary); color: var(--primary); }
 
-        .about-card { background: white; border-radius: var(--radius-lg); padding: 60px; box-shadow: var(--shadow-lg); display: flex; gap: 60px; }
+        .about-card { background: white; border-radius: var(--radius-lg); padding: 60px; box-shadow: var(--shadow-md); display: flex; gap: 60px; border: 1px solid var(--border-color); }
         .about-content { flex: 1.5; }
         .tagline-bold { font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: block; }
         .philosophy-quote { text-align: center; margin-top: 40px; font-weight: 700; color: var(--primary); font-size: 1.1rem; }
@@ -115,36 +109,37 @@
             background: var(--primary-light); padding: 20px; border-radius: 20px; text-align: center;
             transition: var(--transition); border: 1px solid transparent;
         }
+        .feature-item:hover { border-color: var(--primary); transform: translateY(-5px); }
 
         .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
         .service-card { background: white; padding: 40px; border-radius: var(--radius); border: 1px solid var(--border-color); transition: var(--transition); text-align: center; }
-        .service-card:hover { transform: translateY(-8px); border-color: var(--primary); }
+        .service-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: var(--shadow-md); }
 
         .work-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
         .work-card { 
             background: white; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-color); 
             transition: var(--transition); cursor: pointer; position: relative;
         }
+        .work-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-md); }
         .work-thumb { height: 220px; background: #f8fafc; overflow: hidden; position: relative; }
         .work-thumb img, .work-thumb video { width: 100%; height: 100%; object-fit: cover; }
-        .work-info { padding: 20px; position: relative; }
+        .work-info { padding: 20px; }
         
         .delete-btn {
-            position: absolute; top: 15px; right: 15px; width: 38px; height: 38px;
+            position: absolute; top: 15px; right: 15px; width: 34px; height: 34px;
             background: var(--danger); color: white; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             opacity: 0; transition: var(--transition); z-index: 50;
-            cursor: pointer; font-size: 20px; font-weight: bold; border: 2px solid white;
+            cursor: pointer; font-size: 20px; border: 2px solid white;
         }
         .work-card:hover .delete-btn { opacity: 1; }
-
-        [contenteditable]:hover { background: rgba(43, 92, 255, 0.05); outline: none; border-radius: 4px; }
 
         .add-card { 
             border: 2px dashed var(--text-muted); background: rgba(241, 245, 249, 0.3); 
             display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px;
             color: var(--text-muted); transition: var(--transition);
         }
+        .add-card:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
         .contact-box { background: #0f172a; color: white; border-radius: var(--radius-lg); padding: 60px; text-align: center; }
         .contact-items { display: flex; justify-content: center; gap: 40px; margin-top: 40px; flex-wrap: wrap; }
@@ -152,11 +147,17 @@
             background: rgba(255,255,255,0.05); padding: 20px 30px; border-radius: 15px; 
             cursor: pointer; transition: var(--transition); border: 1px solid rgba(255,255,255,0.1);
         }
+        .contact-item:hover { background: rgba(255,255,255,0.1); border-color: var(--primary); transform: scale(1.05); }
+        .contact-item strong { color: white; transition: var(--transition); }
+        .contact-item:hover strong { color: var(--accent); }
+
         .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 50px; z-index: 3000; opacity: 0; transition: 0.3s; pointer-events: none;}
-        
+        [contenteditable]:hover { background: rgba(43, 92, 255, 0.05); border-radius: 4px; outline: none; }
+
         @media (max-width: 992px) {
-            .hero-grid, .about-card { grid-template-columns: 1fr; flex-direction: column; text-align: center; }
+            .hero-grid, .about-card { grid-template-columns: 1fr; text-align: center; justify-items: center; }
             .service-grid { grid-template-columns: 1fr; }
+            .about-card { padding: 40px 24px; }
         }
     </style>
 </head>
@@ -170,14 +171,14 @@
         <div class="container nav-wrapper">
             <div class="logo" onclick="window.scrollTo(0,0)">Leo.Design</div>
             <nav class="nav-menu">
-                <a href="#hero">首页</a>
-                <a href="#about">简介</a>
-                <a href="#services">服务</a>
-                <a href="#visual">视觉资产</a>
-                <a href="#video">视频履历</a>
-                <a href="#contact">联系我</a>
+                <a href="#hero" data-i18n="nav_home">首页</a>
+                <a href="#about" data-i18n="nav_about">简介</a>
+                <a href="#services" data-i18n="nav_services">服务范围</a>
+                <a href="#visual" data-i18n="nav_visual">视觉资产</a>
+                <a href="#video" data-i18n="nav_video">视频履历</a>
+                <a href="#contact" data-i18n="nav_contact">联系我</a>
             </nav>
-            <button class="lang-btn" style="color: var(--primary); font-weight: 700; cursor:pointer;" onclick="toggleLang()">EN</button>
+            <button class="lang-btn" onclick="toggleLang()">中文/En</button>
         </div>
     </header>
 
@@ -193,12 +194,12 @@
                 <input type="file" id="avatar-input" hidden onchange="handleFileSelect(this, 'avatar')">
             </div>
             <div class="hero-text-area">
-                <h2 id="data-greeting">你好，我是李浩藩</h2>
-                <h1 id="data-title">AI 漫剧制作师<br>& AI 设计师</h1>
+                <h2 data-i18n="hero_hello">你好，我是李浩藩</h2>
+                <h1 data-i18n="hero_title">AI 漫剧制作师<br>& AI 设计师</h1>
                 <span class="hero-slogan-en">AI-Driven Storytelling & Visual Design</span>
                 <div class="hero-btns">
-                    <a href="#visual" class="btn btn-primary">查看作品集</a>
-                    <button class="btn btn-outline" onclick="downloadAll()">下载 PDF</button>
+                    <a href="#visual" class="btn btn-primary" data-i18n="btn_portfolio">查看作品集</a>
+                    <button class="btn btn-outline" onclick="exportData()" data-i18n="btn_download">下载 PDF</button>
                 </div>
             </div>
         </div>
@@ -208,42 +209,40 @@
         <div class="container">
             <div class="about-card">
                 <div class="about-content">
-                    <span class="tagline-bold">用AI重构视觉叙事的创作者</span>
-                    <p id="about-text" style="color: var(--text-secondary); text-align: justify;" contenteditable="true">
-                        <!-- 初始占位文案 -->
-                        我是一名兼具设计美学功底、拍摄实战经验与 AI 技术能力的 AI 漫剧制作师...
+                    <span class="tagline-bold" data-i18n="about_tag">用AI重构视觉叙事的创作者</span>
+                    <p id="about-text" style="color: var(--text-secondary); text-align: justify;" contenteditable="true" data-i18n="about_content">
+                        我是一名兼具设计美学功底、拍摄实战经验与 AI 技术能力的 AI 漫剧制作师。从传统电商视觉到 AI 内容创作，我完整经历了内容生产范式的迭代升级，深知 “技术服务于内容、效率服务于体验” 的创作痛点。我的核心创作理念是：AI 技术只有服务于真实内容需求、创造优质视觉价值时，才具备真正的生命力。我擅长将商业设计逻辑与 AI 创作能力结合，通过精细化的角色设定、场景构建、运镜设计，推动 AI 视频内容在短剧、广告、品牌宣传等场景的规模化落地。作为技术与创意之间的桥梁，我既能基于单反实拍与 AI 生成的融合思路，打磨 Seedance 等工具的视频制作全流程；也能对齐内容目标与用户体验，打造兼具观赏性与传播力的 AI 漫剧作品。
                     </p>
-                    <div class="philosophy-quote">“技术服务内容，效率服务体验”</div>
+                    <div class="philosophy-quote" data-i18n="about_philosophy">“技术服务内容，效率服务体验”</div>
                 </div>
                 <div class="about-features" id="feature-list">
-                    <!-- 动态渲染核心能力卡片 -->
+                    <!-- 由 JS 初始化渲染 -->
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 服务模块 -->
     <section id="services" class="section-padding">
         <div class="container">
             <div style="text-align: center; margin-bottom: 50px;">
-                <span class="tag-gray">WHAT I DO</span>
-                <h2 style="font-size: 2.2rem;">我能提供的服务</h2>
+                <span class="tag-gray" data-i18n="label_services">WHAT I DO</span>
+                <h2 style="font-size: 2.2rem;" data-i18n="services_title">我能提供的服务</h2>
             </div>
             <div class="service-grid">
                 <div class="service-card">
                     <span style="font-size:2.5rem;">🎬</span>
-                    <h3>AI 漫剧定制</h3>
-                    <p>全流程 AI 漫剧制作，深度适配各平台传播需求。</p>
+                    <h3 data-i18n="service_1_title">AI 漫剧定制</h3>
+                    <p data-i18n="service_1_desc">全流程 AI 漫剧制作，深度适配各平台传播需求。</p>
                 </div>
                 <div class="service-card">
                     <span style="font-size:2.5rem;">🎨</span>
-                    <h3>视觉资产设计</h3>
-                    <p>角色一致性设定、场景概念图、分镜稿绘制。</p>
+                    <h3 data-i18n="service_2_title">视觉资产设计</h3>
+                    <p data-i18n="service_2_desc">角色一致性设定、场景概念图、分镜稿绘制。</p>
                 </div>
                 <div class="service-card">
                     <span style="font-size:2.5rem;">🚀</span>
-                    <h3>商业短片制作</h3>
-                    <p>品牌广告、概念 PV，利用 AI 实现电影级叙事。</p>
+                    <h3 data-i18n="service_3_title">商业短片制作</h3>
+                    <p data-i18n="service_3_desc">品牌广告、概念 PV，利用 AI 实现电影级叙事。</p>
                 </div>
             </div>
         </div>
@@ -252,14 +251,13 @@
     <section id="visual" class="section-padding">
         <div class="container">
             <div style="text-align: center; margin-bottom: 50px;">
-                <span class="tag-gray">精选项目</span>
-                <h2 style="font-size: 2.2rem;">视觉资产</h2>
+                <span class="tag-gray" data-i18n="label_projects">精选项目</span>
+                <h2 style="font-size: 2.2rem;" data-i18n="nav_visual">视觉资产</h2>
             </div>
             <div class="work-grid" id="visual-grid">
-                <!-- 添加卡片 -->
                 <div class="work-card add-card" onclick="document.getElementById('input-visual').click()" ondrop="handleDrop(event, 'visual')" ondragover="e=>e.preventDefault()">
                     <span style="font-size: 2rem;">+</span>
-                    <p>点击或拖拽上传图片</p>
+                    <p data-i18n="add_visual">点击或拖拽上传图片</p>
                     <input type="file" id="input-visual" hidden accept="image/*" onchange="handleFileSelect(this, 'visual')">
                 </div>
             </div>
@@ -269,14 +267,13 @@
     <section id="video" class="section-padding">
         <div class="container">
             <div style="text-align: center; margin-bottom: 50px;">
-                <span class="tag-gray">精选项目</span>
-                <h2 style="font-size: 2.2rem;">视频履历</h2>
+                <span class="tag-gray" data-i18n="label_projects">精选项目</span>
+                <h2 style="font-size: 2.2rem;" data-i18n="nav_video">视频履历</h2>
             </div>
             <div class="work-grid" id="video-grid">
-                <!-- 添加卡片 -->
                 <div class="work-card add-card" onclick="document.getElementById('input-video').click()" ondrop="handleDrop(event, 'video')" ondragover="e=>e.preventDefault()">
                     <span style="font-size: 2rem;">▶</span>
-                    <p>点击或拖拽上传视频</p>
+                    <p data-i18n="add_video">点击或拖拽上传视频</p>
                     <input type="file" id="input-video" hidden accept="video/*" onchange="handleFileSelect(this, 'video')">
                 </div>
             </div>
@@ -286,22 +283,22 @@
     <section id="contact" class="section-padding">
         <div class="container">
             <div class="contact-box">
-                <span class="tag-gray" style="color: rgba(255,255,255,0.4);">GET IN TOUCH</span>
-                <h2 style="font-size: 2.5rem; margin-top: 10px;">联系我・开启创意合作</h2>
+                <h2 style="font-size: 2.2rem;" data-i18n="contact_title">联系我・开启创意合作</h2>
+                <p style="margin-top: 10px; color: #94a3b8;" data-i18n="contact_tag">期待和你一起，把创意变成现实</p>
                 <div class="contact-items">
                     <div class="contact-item" onclick="copy('Nh279595@163.com')">
-                        <small>📩 邮箱</small><br><strong id="data-email" contenteditable="true">Nh279595@163.com</strong>
+                        <small data-i18n="label_email">📩 邮箱</small><br><strong>Nh279595@163.com</strong>
                     </div>
                     <div class="contact-item" onclick="copy('19124215290')">
-                        <small>📱 电话</small><br><strong id="data-phone" contenteditable="true">19124215290</strong>
+                        <small data-i18n="label_phone">📱 电话</small><br><strong>19124215290</strong>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer style="padding: 40px 0; border-top: 1px solid var(--border-color); text-align: center;">
-        <div class="container" style="color: var(--text-muted); font-size: 0.8rem;">
+    <footer style="padding: 40px 0; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+        <div class="container">
             © 2026 李浩藩 Leo.Design | AI漫剧制作师 & 设计师 | Powered by Creativity & AI
         </div>
     </footer>
@@ -310,129 +307,101 @@
 
     <script>
         const DATA_FILENAME = "李浩藩_作品集数据.json";
-        
-        const fallbackData = {
-            personalInfo: {
-                name: "李浩藩",
-                greeting: "你好，我是李浩藩",
-                title: "AI 漫剧制作师<br>& AI 设计师",
-                email: "Nh279595@163.com",
-                phone: "19124215290",
-                about: "我是一名兼具设计美学功底、拍摄实战经验与 AI 技术能力的 AI 漫剧制作师。从传统电商视觉到 AI 内容创作，我完整经历了内容生产范式的迭代升级，深知 “技术服务于内容、效率服务于体验” 的创作痛点。我的核心创作理念是：AI 技术只有服务于真实内容需求、创造优质视觉价值时，才具备真正的生命力。我擅长将商业设计逻辑与 AI 创作能力结合，通过精细化的角色设定、场景构建、运镜设计，推动 AI 视频内容在短剧、广告、品牌宣传等场景的规模化落地。"
+        let isEnglish = false;
+
+        const i18n = {
+            zh: {
+                nav_home: "首页", nav_about: "简介", nav_services: "服务范围", nav_visual: "视觉资产", nav_video: "视频履历", nav_contact: "联系我",
+                hero_hello: "你好，我是李浩藩", hero_title: "AI 漫剧制作师<br>& AI 设计师", btn_portfolio: "查看作品集", btn_download: "下载 PDF",
+                about_tag: "用AI重构视觉叙事的创作者", about_philosophy: "“技术服务内容，效率服务体验”",
+                about_content: "我是一名兼具设计美学功底、拍摄实战经验与 AI 技术能力的 AI 漫剧制作师。从传统电商视觉到 AI 内容创作，我完整经历了内容生产范式的迭代升级，深知 “技术服务于内容、效率服务于体验” 的创作痛点。我的核心创作理念是：AI 技术只有服务于真实内容需求、创造优质视觉价值时，才具备真正的生命力。我擅长将商业设计逻辑与 AI 创作能力结合，通过精细化的角色设定、场景构建、运镜设计，推动 AI 视频内容在短剧、广告、品牌宣传等场景的规模化落地。作为技术与创意之间的桥梁，我既能基于单反实拍与 AI 生成的融合思路，打磨 Seedance 等工具的视频制作全流程；也能对齐内容目标与用户体验，打造兼具观赏性与传播力的 AI 漫剧作品。",
+                services_title: "我能提供的服务", label_services: "WHAT I DO", service_1_title: "AI 漫剧定制", service_1_desc: "全流程 AI 漫剧制作，深度适配各平台传播需求。", service_2_title: "视觉资产设计", service_2_desc: "角色一致性设定、场景概念图、分镜稿绘制。", service_3_title: "商业短片制作", service_3_desc: "品牌广告、概念 PV，利用 AI 实现电影级叙事。",
+                label_projects: "精选项目", add_visual: "点击或拖拽上传图片", add_video: "点击或拖拽上传视频",
+                contact_title: "联系我・开启创意合作", contact_tag: "期待和你一起，把创意变成现实", label_email: "📩 邮箱", label_phone: "📱 电话",
+                msg_copy: "已复制：", msg_lang: "已切换为中文"
             },
+            en: {
+                nav_home: "Home", nav_about: "About", nav_services: "Services", nav_visual: "Visual Assets", nav_video: "Video Resume", nav_contact: "Contact",
+                hero_hello: "Hi, I'm Haofan Li", hero_title: "AI Comic Producer<br>& AI Designer", btn_portfolio: "Portfolio", btn_download: "Download PDF",
+                about_tag: "Reconstructing Visual Storytelling with AI", about_philosophy: "“Tech serves content, Efficiency serves experience”",
+                about_content: "I am an AI comic producer with design aesthetics, filming experience, and AI expertise. From e-commerce visuals to AI creation, I've seen the production paradigm shift. My core philosophy: AI only thrives when it serves real content needs and creates visual value. I excel at merging business logic with AI, using refined character settings and cinematic design to scale AI video content for short dramas, ads, and brand promos. As a bridge between tech and creativity, I refine workflows for tools like Seedance and build impactful AI comic works.",
+                services_title: "My Services", label_services: "WHAT I DO", service_1_title: "AI Comic Customization", service_1_desc: "Full pipeline AI comic production adapted for social platforms.", service_2_title: "Visual Assets Design", service_2_desc: "Character consistency, concept art, and storyboard drawing.", service_3_title: "Commercial Short Films", service_3_desc: "Brand ads and concept PVs using AI for cinematic narratives.",
+                label_projects: "SELECTED PROJECTS", add_visual: "Click or Drag to Upload Image", add_video: "Click or Drag to Upload Video",
+                contact_title: "Let's Collaborate", contact_tag: "Turning creativity into reality together", label_email: "📩 Email", label_phone: "📱 Phone",
+                msg_copy: "Copied: ", msg_lang: "Switched to English"
+            }
+        };
+
+        const defaultData = {
             features: [
-                { icon: "🚀", key: "0 到 1", desc: "闭环能力" },
-                { icon: "✨", key: "多平台", desc: "内容适配" },
-                { icon: "📚", key: "系统课程", desc: "方法论沉淀" },
-                { icon: "🎥", key: "运镜 + AI", desc: "镜头融合" }
+                { icon: "🚀", key: "0 到 1", desc: "闭环能力", keyEn: "0 to 1", descEn: "Full Cycle" },
+                { icon: "✨", key: "多平台", desc: "内容适配", keyEn: "Multi-Platform", descEn: "Adaptation" },
+                { icon: "📚", key: "系统课程", desc: "方法论沉淀", keyEn: "Courses", descEn: "Methodology" },
+                { icon: "🎥", key: "运镜 + AI", desc: "镜头融合", keyEn: "Cam + AI", descEn: "Cinematic" }
             ],
             visual_assets: [
                 { src: "3f3865cf4f398be5226e427fac9eeee0_2.jpg", title: "赛博场景设定", desc: "Midjourney 建筑概念" }
-            ],
-            video_resume: []
+            ]
         };
 
         async function init() {
-            let configData = fallbackData;
-            
+            let data = JSON.parse(JSON.stringify(defaultData)); // 预载默认深拷贝
             try {
-                const response = await fetch(DATA_FILENAME);
-                if (response.ok) {
-                    configData = await response.json();
-                    console.log("成功读取本地 JSON 数据");
+                // 尝试优先读取本地同名 JSON 文件
+                const res = await fetch(DATA_FILENAME);
+                if (res.ok) {
+                    const jsonData = await res.json();
+                    data = { ...data, ...jsonData }; // 合并数据
+                    console.log("成功加载本地数据文件");
                 }
-            } catch (err) {
-                console.warn("未发现本地 JSON 文件或存在跨域限制，将使用默认数据渲染。");
+            } catch (e) {
+                console.warn("未能加载本地JSON，使用内置默认数据。");
             }
 
-            renderPage(configData);
+            // 渲染数据到页面
+            if(data.personalInfo) {
+                document.getElementById('about-text').innerText = data.personalInfo.about;
+            }
+
+            renderFeatures(data.features);
+
+            // 清理并渲染视觉资产 (如果 JSON 中有)
+            if(data.visual_assets && data.visual_assets.length > 0) {
+                const visualGrid = document.getElementById('visual-grid');
+                // 移除演示用的旧卡片，只保留 Add 卡片
+                const oldCards = visualGrid.querySelectorAll('.work-card:not(.add-card)');
+                oldCards.forEach(c => c.remove());
+                data.visual_assets.forEach(v => addWork('visual', v.src, v.title, v.desc));
+            }
+            
             setupInteractions();
+            updateUI();
         }
 
-        function renderPage(data) {
-            // 渲染个人信息
-            document.getElementById('data-greeting').innerText = data.personalInfo.greeting;
-            document.getElementById('data-title').innerHTML = data.personalInfo.title;
-            document.getElementById('data-email').innerText = data.personalInfo.email;
-            document.getElementById('data-phone').innerText = data.personalInfo.phone;
-            document.getElementById('about-text').innerText = data.personalInfo.about;
+        function toggleLang() {
+            isEnglish = !isEnglish;
+            updateUI();
+            showTip(isEnglish ? i18n.en.msg_lang : i18n.zh.msg_lang);
+        }
 
-            // 渲染特征卡片
-            const fList = document.getElementById('feature-list');
-            fList.innerHTML = data.features.map(f => `
+        function updateUI() {
+            const lang = isEnglish ? 'en' : 'zh';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (i18n[lang][key]) el.innerHTML = i18n[lang][key];
+            });
+            renderFeatures(defaultData.features);
+        }
+
+        function renderFeatures(features) {
+            const list = document.getElementById('feature-list');
+            list.innerHTML = features.map(f => `
                 <div class="feature-item">
-                    <span style="font-size: 1.5rem; display: block; margin-bottom: 5px;">${f.icon}</span>
-                    <strong style="font-size: 0.9rem;">${f.key}</strong>
-                    <div style="font-size: 0.7rem; opacity: 0.6;">${f.desc}</div>
+                    <span class="feature-icon">${f.icon}</span>
+                    <strong style="font-size: 0.9rem; display: block;">${isEnglish ? f.keyEn : f.key}</strong>
+                    <div style="font-size: 0.7rem; opacity: 0.6;">${isEnglish ? f.descEn : f.desc}</div>
                 </div>
             `).join('');
-
-            // 渲染已有的作品列表
-            if(data.visual_assets) {
-                data.visual_assets.forEach(item => addWork('visual', item.src, item.title, item.desc));
-            }
-            if(data.video_resume) {
-                data.video_resume.forEach(item => addWork('video', item.src, item.title, item.desc));
-            }
-        }
-
-        function setupInteractions() {
-            window.addEventListener('scroll', () => {
-                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                const scrolled = (winScroll / height) * 100;
-                const progress = document.getElementById("scroll-progress");
-                if(progress) progress.style.width = scrolled + "%";
-            });
-
-            const dot = document.querySelector('.cursor-dot');
-            const outline = document.querySelector('.cursor-outline');
-            window.addEventListener('mousemove', e => {
-                dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
-                outline.style.left = e.clientX + 'px'; outline.style.top = e.clientY + 'px';
-            });
-        }
-
-        function downloadAll() {
-            showTip('正在准备导出数据并唤起打印 PDF...');
-            
-            const exportData = {
-                personalInfo: {
-                    greeting: document.getElementById('data-greeting').innerText,
-                    title: document.getElementById('data-title').innerHTML,
-                    email: document.getElementById('data-email').innerText,
-                    phone: document.getElementById('data-phone').innerText,
-                    about: document.getElementById('about-text').innerText
-                },
-                features: fallbackData.features,
-                visual_assets: Array.from(document.querySelectorAll('#visual-grid .work-card:not(.add-card)')).map(c => ({
-                    src: c.querySelector('img') ? c.querySelector('img').src : "",
-                    title: c.querySelector('h4').innerText,
-                    desc: c.querySelector('p').innerText
-                })),
-                video_resume: Array.from(document.querySelectorAll('#video-grid .work-card:not(.add-card)')).map(c => ({
-                    src: c.querySelector('video') ? c.querySelector('video').src : "",
-                    title: c.querySelector('h4').innerText,
-                    desc: c.querySelector('p').innerText
-                })),
-                timestamp: new Date().toLocaleString()
-            };
-
-            // 下载 JSON
-            const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-            const jsonUrl = URL.createObjectURL(jsonBlob);
-            const a = document.createElement('a');
-            a.href = jsonUrl;
-            a.download = DATA_FILENAME;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(jsonUrl);
-
-            // 0.8秒后弹出打印窗口
-            setTimeout(() => {
-                window.print();
-            }, 800);
         }
 
         function handleFileSelect(input, type) {
@@ -444,11 +413,11 @@
                         img.src = e.target.result; img.style.display = 'block';
                         document.getElementById('avatar-text').style.display = 'none';
                     } else {
-                        addWork(type, e.target.result, '新增项目', '点击此处编辑描述');
+                        addWork(type, e.target.result, isEnglish ? 'New Project' : '新增项目', isEnglish ? 'Edit description' : '点击编辑描述');
                     }
                 };
                 reader.readAsDataURL(input.files[0]);
-                input.value = ''; 
+                input.value = '';
             }
         }
 
@@ -457,7 +426,7 @@
             const files = e.dataTransfer.files;
             if (files && files[0]) {
                 const reader = new FileReader();
-                reader.onload = ev => addWork(type, ev.target.result, '新增项目', '点击此处编辑描述');
+                reader.onload = ev => addWork(type, ev.target.result, isEnglish ? 'New Project' : '新增项目', isEnglish ? 'Edit description' : '点击编辑描述');
                 reader.readAsDataURL(files[0]);
             }
         }
@@ -488,18 +457,57 @@
             grid.insertBefore(card, grid.querySelector('.add-card'));
         }
 
+        function exportData() {
+            const exportObj = {
+                personalInfo: {
+                    name: "李浩藩",
+                    about: document.getElementById('about-text').innerText
+                },
+                visual_assets: Array.from(document.querySelectorAll('#visual-grid .work-card:not(.add-card)')).map(c => ({
+                    src: c.querySelector('img') ? c.querySelector('img').src : "",
+                    title: c.querySelector('h4').innerText,
+                    desc: c.querySelector('p').innerText
+                })),
+                timestamp: new Date().toISOString()
+            };
+
+            // 导出 JSON
+            const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = DATA_FILENAME;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a);
+
+            // 唤起打印生成 PDF
+            setTimeout(() => window.print(), 800);
+        }
+
         function copy(text) {
             const el = document.createElement('textarea');
             el.value = text; document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
-            showTip('已复制：' + text);
+            showTip((isEnglish ? i18n.en.msg_copy : i18n.zh.msg_copy) + text);
         }
 
         function showTip(msg) {
             const t = document.getElementById('toast');
-            if(!t) return;
             t.innerText = msg; t.style.opacity = 1;
             setTimeout(() => t.style.opacity = 0, 2500);
+        }
+
+        function setupInteractions() {
+            window.addEventListener('scroll', () => {
+                const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+                document.getElementById("scroll-progress").style.width = scrolled + "%";
+            });
+
+            const dot = document.querySelector('.cursor-dot');
+            const outline = document.querySelector('.cursor-outline');
+            window.addEventListener('mousemove', e => {
+                dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
+                outline.style.left = e.clientX + 'px'; outline.style.top = e.clientY + 'px';
+            });
         }
 
         window.onload = init;
