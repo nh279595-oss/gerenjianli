@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>李浩藩 - AI 漫剧制作师 | Leo.Design</title>
+    <style>
+        :root {
+            --primary: #2b5cff; 
+            --primary-light: #ecf1ff;
+            --accent: #00d2ff;
+            --danger: #ff4d4f;
+            --bg-gradient: linear-gradient(135deg, #f8faff 0%, #eff6ff 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --card-bg: #ffffff;
+            --border-color: rgba(226, 232, 240, 0.8);
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --shadow-lg: 0 20px 50px -12px rgba(43, 92, 255, 0.12);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 20px;
+            --radius-lg: 32px;
+        }
+
+        @media print {
+            header, .hero-btns, .delete-btn, .add-card, #scroll-progress, .cursor-dot, .cursor-outline, .lang-btn {
+                display: none !important;
+            }
+            body { background: white !important; }
+            .container { max-width: 100% !important; padding: 0 !important; }
+            .about-card { box-shadow: none !important; border: 1px solid #eee !important; page-break-inside: avoid; }
+            .work-card { break-inside: avoid; border: 1px solid #eee !important; box-shadow: none !important; margin-bottom: 20px; }
+            .section-padding { padding: 40px 0 !important; }
+            .service-card { border: 1px solid #eee !important; box-shadow: none !important; }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            font-family: 'Inter', 'PingFang SC', -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        #scroll-progress {
+            position: fixed; top: 0; left: 0; width: 0%; height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            z-index: 2001; transition: width 0.1s;
+        }
+
+        .cursor-dot {
+            width: 8px; height: 8px; background: var(--primary);
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%); transition: transform 0.1s;
+        }
+        .cursor-outline {
+            width: 40px; height: 40px; border: 2px solid var(--primary);
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 9998;
+            transform: translate(-50%, -50%); transition: all 0.2s ease-out;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .section-padding { padding: 100px 0; }
+        .tag-gray { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 80px;
+            background: var(--glass-bg); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color); z-index: 1000;
+        }
+        .nav-wrapper { display: flex; justify-content: space-between; align-items: center; height: 100%; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); cursor: pointer; letter-spacing: -0.5px; }
+        .nav-menu { display: flex; gap: 32px; }
+        .nav-menu a { font-weight: 500; color: var(--text-secondary); transition: var(--transition); font-size: 0.95rem; text-decoration: none; }
+        .nav-menu a:hover { color: var(--primary); }
+
+        #hero { min-height: 100vh; display: flex; align-items: center; padding-top: 80px; }
+        .hero-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; align-items: center; }
+        
+        .hero-avatar-box { display: flex; justify-content: center; position: relative; }
+        .avatar-circle {
+            width: 220px; height: 220px; border-radius: 50%; padding: 4px;
+            border: 2px solid var(--border-color); background: var(--primary);
+            transition: var(--transition); cursor: pointer; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .avatar-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--primary); color: white; font-size: 4rem; font-weight: 800; }
+        .avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-circle:hover { border-color: var(--accent); transform: scale(1.05); }
+
+        .hero-text-area h2 { font-size: 1.1rem; color: var(--primary); font-weight: 600; margin-bottom: 8px; }
+        .hero-text-area h1 { font-size: 3.2rem; line-height: 1.2; margin-bottom: 16px; font-weight: 800; }
+        .hero-slogan-en { color: var(--text-muted); font-size: 1rem; font-weight: 400; margin-bottom: 32px; display: block; }
+
+        .btn { padding: 14px 32px; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); cursor: pointer; border: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(43, 92, 255, 0.2); }
+        .btn-outline { border: 1px solid var(--border-color); background: white; color: var(--text-secondary); margin-left: 12px; }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-3px); }
+
+        .about-card { background: white; border-radius: var(--radius-lg); padding: 60px; box-shadow: var(--shadow-lg); display: flex; gap: 60px; }
+        .about-content { flex: 1.5; }
+        .tagline-bold { font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: block; }
+        .philosophy-quote { text-align: center; margin-top: 40px; font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+
+        .about-features { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .feature-item { 
+            background: var(--primary-light); padding: 20px; border-radius: 20px; text-align: center;
+            transition: var(--transition); border: 1px solid transparent;
+        }
+        .feature-item:hover { transform: translateY(-5px); border-color: var(--primary); background: white; }
+
+        .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+        .service-card { 
+            background: white; padding: 40px; border-radius: var(--radius); border: 1px solid var(--border-color);
+            transition: var(--transition); text-align: center;
+        }
+        .service-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        .service-icon { font-size: 2.5rem; margin-bottom: 20px; display: block; }
+
+        .work-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+        .work-card { 
+            background: white; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-color); 
+            transition: var(--transition); cursor: pointer; position: relative;
+        }
+        .work-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        .work-thumb { height: 220px; background: #f8fafc; overflow: hidden; position: relative; }
+        .work-thumb img, .work-thumb video { width: 100%; height: 100%; object-fit: cover; }
+        .work-info { padding: 20px; position: relative; }
+        
+        .delete-btn {
+            position: absolute; top: 15px; right: 15px; width: 38px; height: 38px;
+            background: var(--danger); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: var(--transition); z-index: 50;
+            cursor: pointer; font-size: 20px; font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+            border: 2px solid white;
+        }
+        .work-card:hover .delete-btn { opacity: 1; transform: scale(1.1); }
+        .delete-btn:hover { background: #ff7875; transform: scale(1.2) rotate(90deg); }
+
+        [contenteditable]:hover { background: rgba(43, 92, 255, 0.05); border-radius: 4px; outline: none; }
+        [contenteditable]:focus { background: rgba(43, 92, 255, 0.08); border-radius: 4px; outline: 1px dashed var(--primary); }
+
+        .add-card { 
+            border: 2px dashed var(--text-muted); background: rgba(241, 245, 249, 0.3); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px;
+            color: var(--text-muted); transition: var(--transition);
+        }
+        .add-card:hover, .add-card.dragover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+        .contact-box { background: #0f172a; color: white; border-radius: var(--radius-lg); padding: 60px; text-align: center; }
+        .contact-items { display: flex; justify-content: center; gap: 40px; margin-top: 40px; flex-wrap: wrap; }
+        .contact-item { 
+            background: rgba(255,255,255,0.05); padding: 20px 30px; border-radius: 15px; 
+            cursor: pointer; transition: var(--transition); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .contact-item:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-5px); }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 50px; z-index: 3000; opacity: 0; transition: 0.3s; pointer-events: none;}
+        
+        @media (max-width: 992px) {
+            .hero-grid, .about-card { grid-template-columns: 1fr; flex-direction: column; text-align: center; }
+            .hero-btns { justify-content: center; }
+            .service-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="scroll-progress"></div>
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <header>
+        <div class="container nav-wrapper">
+            <div class="logo" onclick="window.scrollTo(0,0)">Leo.Design</div>
+            <nav class="nav-menu">
+                <a href="#hero">首页</a>
+                <a href="#about">简介</a>
+                <a href="#services">服务</a>
+                <a href="#visual">视觉资产</a>
+                <a href="#video">视频履历</a>
+                <a href="#contact">联系我</a>
+            </nav>
+            <button class="lang-btn" style="color: var(--primary); font-weight: 700; font-size: 0.8rem; cursor:pointer;" onclick="toggleLang()">EN</button>
+        </div>
+    </header>
+
+    <section id="hero">
+        <div class="container hero-grid">
+            <div class="hero-avatar-box">
+                <div class="avatar-circle" onclick="document.getElementById('avatar-input').click()">
+                    <div class="avatar-inner" id="avatar-container">
+                        <span id="avatar-text">Leo</span>
+                        <img id="avatar-img" src="8f537c9d9fd0dcd7f80354761a8b6af0_2.jpg" style="display:none;" onerror="this.style.display='none'; document.getElementById('avatar-text').style.display='block'">
+                    </div>
+                </div>
+                <input type="file" id="avatar-input" hidden onchange="handleFileSelect(this, 'avatar')">
+            </div>
+            <div class="hero-text-area">
+                <h2>你好，我是李浩藩</h2>
+                <h1>AI 漫剧制作师<br>& AI 设计师</h1>
+                <span class="hero-slogan-en">AI-Driven Storytelling & Visual Design</span>
+                <div class="hero-btns">
+                    <a href="#visual" class="btn btn-primary">查看作品集</a>
+                    <button class="btn btn-outline" id="btn-download" onclick="downloadAll()">下载 PDF</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="section-padding">
+        <div class="container">
+            <div class="about-card">
+                <div class="about-content">
+                    <span class="tagline-bold">用AI重构视觉叙事的创作者</span>
+                    <p id="about-text" style="color: var(--text-secondary); text-align: justify;">
+                        我是一名兼具设计美学功底、拍摄实战经验与 AI 技术能力的 AI 漫剧制作师。从传统电商视觉到 AI 内容创作，我完整经历了内容生产范式的迭代升级，深知 “技术服务于内容、效率服务于体验” 的创作痛点。我的核心创作理念是：AI 技术只有服务于真实内容需求、创造优质视觉价值时，才具备真正的生命力。我擅长将商业设计逻辑与 AI 创作能力结合，通过精细化的角色设定、场景构建、运镜设计，推动 AI 视频内容在短剧、广告、品牌宣传等场景的规模化落地。作为技术与创意之间的桥梁，我既能基于单反实拍与 AI 生成的融合思路，打磨 Seedance 等工具的视频制作全流程；也能对齐内容目标与用户体验，打造兼具观赏性与传播力的 AI 漫剧作品。
+                    </p>
+                    <div class="philosophy-quote">“技术服务内容，效率服务体验”</div>
+                </div>
+                <div class="about-features" id="feature-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="section-padding">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 50px;">
+                <span class="tag-gray">WHAT I DO</span>
+                <h2 style="font-size: 2.2rem;">我能提供的服务</h2>
+            </div>
+            <div class="service-grid">
+                <div class="service-card">
+                    <span class="service-icon">🎬</span>
+                    <h3>AI 漫剧定制</h3>
+                    <p>从脚本分镜到成片的全流程 AI 漫剧制作，深度适配各大短视频平台传播需求。</p>
+                </div>
+                <div class="service-card">
+                    <span class="service-icon">🎨</span>
+                    <h3>视觉资产设计</h3>
+                    <p>角色一致性设定、高精度场景概念图、分镜稿绘制，打通 AI 生成与实拍边界。</p>
+                </div>
+                <div class="service-card">
+                    <span class="service-icon">🚀</span>
+                    <h3>商业短片制作</h3>
+                    <p>品牌广告、概念 PV、创意短片，利用 AI + 实拍融合技术实现电影级叙事。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="visual" class="section-padding">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 50px;">
+                <span class="tag-gray">精选项目</span>
+                <h2 style="font-size: 2.2rem;">视觉资产</h2>
+            </div>
+            <div class="work-grid" id="visual-grid">
+                <div class="work-card add-card" id="drop-visual" 
+                     onclick="document.getElementById('input-visual').click()"
+                     ondrop="handleDrop(event, 'visual')" 
+                     ondragover="handleDragOver(event)" 
+                     ondragleave="handleDragLeave(event)">
+                    <span style="font-size: 2rem; margin-bottom: 10px;">+</span>
+                    <p>点击或拖拽上传图片</p>
+                    <input type="file" id="input-visual" hidden accept="image/*" onchange="handleFileSelect(this, 'visual')">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="video" class="section-padding">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 50px;">
+                <span class="tag-gray">精选项目</span>
+                <h2 style="font-size: 2.2rem;">视频履历</h2>
+            </div>
+            <div class="work-grid" id="video-grid">
+                <div class="work-card add-card" id="drop-video" 
+                     onclick="document.getElementById('input-video').click()"
+                     ondrop="handleDrop(event, 'video')" 
+                     ondragover="handleDragOver(event)" 
+                     ondragleave="handleDragLeave(event)">
+                    <span style="font-size: 2rem; margin-bottom: 10px;">▶</span>
+                    <p>点击或拖拽上传视频</p>
+                    <input type="file" id="input-video" hidden accept="video/*" onchange="handleFileSelect(this, 'video')">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section-padding">
+        <div class="container">
+            <div class="contact-box">
+                <span class="tag-gray" style="color: rgba(255,255,255,0.4);">GET IN TOUCH</span>
+                <h2 style="font-size: 2.5rem; margin-top: 10px;">联系我・开启创意合作</h2>
+                <p style="color: #94a3b8; margin-top: 15px;">期待和你一起，把创意变成现实</p>
+                <div class="contact-items">
+                    <div class="contact-item" onclick="copy('Nh279595@163.com')">
+                        <small>📩 邮箱</small><br><strong id="data-email">Nh279595@163.com</strong>
+                    </div>
+                    <div class="contact-item" onclick="copy('19124215290')">
+                        <small>📱 电话</small><br><strong id="data-phone">19124215290</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="padding: 40px 0; border-top: 1px solid var(--border-color);">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.8rem; flex-wrap: wrap; gap: 10px;">
+            <div>© 2026 李浩藩 Leo.Design | AI漫剧制作师 & 设计师</div>
+            <div>Powered by Creativity & AI</div>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast">复制成功</div>
+
+    <script>
+        const featureData = [
+            { icon: "🚀", key: "0 到 1", desc: "闭环能力" },
+            { icon: "✨", key: "多平台", desc: "内容适配" },
+            { icon: "📚", key: "系统课程", desc: "方法论沉淀" },
+            { icon: "🎥", key: "运镜 + AI", desc: "镜头融合" }
+        ];
+
+        let currentLang = 'zh';
+
+        function init() {
+            const fList = document.getElementById('feature-list');
+            if (fList) {
+                fList.innerHTML = featureData.map(f => `
+                    <div class="feature-item">
+                        <span style="font-size: 1.5rem; display: block; margin-bottom: 5px;">${f.icon}</span>
+                        <strong style="font-size: 0.9rem;">${f.key}</strong>
+                        <div style="font-size: 0.7rem; opacity: 0.6;">${f.desc}</div>
+                    </div>
+                `).join('');
+            }
+
+            // 加载初始案例
+            addWork('visual', '3f3865cf4f398be5226e427fac9eeee0_2.jpg', '赛博场景设定', 'Midjourney 建筑概念');
+
+            // 监听滚动进度
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                const progress = document.getElementById("scroll-progress");
+                if (progress) progress.style.width = scrolled + "%";
+            });
+
+            // 鼠标跟随
+            const dot = document.querySelector('.cursor-dot');
+            const outline = document.querySelector('.cursor-outline');
+            window.addEventListener('mousemove', e => {
+                if (dot && outline) {
+                    dot.style.left = e.clientX + 'px';
+                    dot.style.top = e.clientY + 'px';
+                    outline.style.left = e.clientX + 'px';
+                    outline.style.top = e.clientY + 'px';
+                }
+            });
+        }
+
+        /**
+         * STREAMING_CHUNK:实现下载功能：自动导出 JSON 配置文件 + 自动开启 PDF 打印预览
+         */
+        function downloadAll() {
+            showTip('准备导出 JSON 配置文件...');
+            
+            // 1. 构建 JSON 数据对象
+            const exportData = {
+                personalInfo: {
+                    name: "李浩藩",
+                    title: "AI 漫剧制作师 & AI 设计师",
+                    email: document.getElementById('data-email').innerText,
+                    phone: document.getElementById('data-phone').innerText,
+                    about: document.getElementById('about-text').innerText
+                },
+                visual_assets: Array.from(document.querySelectorAll('#visual-grid .work-card:not(.add-card)')).map(c => ({
+                    title: c.querySelector('h4').innerText,
+                    desc: c.querySelector('p').innerText
+                })),
+                video_resume: Array.from(document.querySelectorAll('#video-grid .work-card:not(.add-card)')).map(c => ({
+                    title: c.querySelector('h4').innerText,
+                    desc: c.querySelector('p').innerText
+                })),
+                timestamp: new Date().toLocaleString()
+            };
+
+            // 2. 导出 JSON 文件
+            const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const jsonUrl = URL.createObjectURL(jsonBlob);
+            const a = document.createElement('a');
+            a.href = jsonUrl;
+            a.download = `李浩藩_作品集数据_${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(jsonUrl);
+
+            // 3. 自动触发 PDF 导出 (打印模式)
+            showTip('JSON 导出成功，正在打开 PDF 打印预览...');
+            setTimeout(() => {
+                window.print();
+            }, 800);
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            const btn = document.querySelector('.lang-btn');
+            if (btn) btn.innerText = currentLang === 'zh' ? 'EN' : '中';
+            showTip(currentLang === 'zh' ? '已切换至中文' : 'Switched to English');
+        }
+
+        function handleFileSelect(input, type) {
+            if (input.files && input.files[0]) {
+                processFile(input.files[0], type);
+                input.value = ''; 
+            }
+        }
+
+        function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+        function handleDragLeave(e) { e.currentTarget.classList.remove('dragover'); }
+        function handleDrop(e, type) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files && files[0]) processFile(files[0], type);
+        }
+
+        function processFile(file, type) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                if (type === 'avatar') {
+                    const img = document.getElementById('avatar-img');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('avatar-text').style.display = 'none';
+                } else {
+                    addWork(type, e.target.result, '新增项目', '点击此处编辑描述');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addWork(containerId, src, title, desc) {
+            const grid = document.getElementById(`${containerId}-grid`);
+            const card = document.createElement('div');
+            card.className = 'work-card';
+            
+            // 删除按钮逻辑
+            const delBtn = document.createElement('div');
+            delBtn.className = 'delete-btn';
+            delBtn.innerHTML = '&times;';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.8)';
+                setTimeout(() => card.remove(), 400);
+            };
+            card.appendChild(delBtn);
+
+            const thumb = document.createElement('div');
+            thumb.className = 'work-thumb';
+            thumb.innerHTML = containerId === 'video' ? `<video src="${src}" controls></video>` : `<img src="${src}">`;
+            card.appendChild(thumb);
+
+            const info = document.createElement('div');
+            info.className = 'work-info';
+            info.innerHTML = `
+                <h4 contenteditable="true" style="font-size: 1rem; margin-bottom: 5px;">${title}</h4>
+                <p contenteditable="true" style="font-size: 0.8rem; color: var(--text-muted);">${desc}</p>
+            `;
+            card.appendChild(info);
+            grid.insertBefore(card, grid.firstChild);
+        }
+
+        function copy(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showTip('已复制：' + text);
+        }
+
+        function showTip(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.opacity = 1;
+            setTimeout(() => t.style.opacity = 0, 2500);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
